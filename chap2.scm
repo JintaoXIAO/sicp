@@ -42,8 +42,215 @@
         (cons (/ n g) (/ d g))
         (cons (/ (- n) g) (/ (- d) g)))))
 
+;; test 2.1
+;;(print-rat (make-rat -1 3))
+;;(print-rat (make-rat -1 -23))
+;;(print-rat (make-rat 1 -3))
+;;(print-rat (make-rat 1 3))
 
-(print-rat (make-rat -1 3))
-(print-rat (make-rat -1 -23))
-(print-rat (make-rat 1 -3))
-(print-rat (make-rat 1 3))
+;; exe 2.2
+
+(define make-segment cons)
+(define start-segment car)
+(define end-segment cdr)
+
+(define make-point cons)
+(define x-point car)
+(define y-point cdr)
+
+(define (print-point p)
+  (newline)
+  (display "(")
+  (display (x-point p))
+  (display ",")
+  (display (y-point p))
+  (display ")"))
+
+(define (midpoint-segment seg)
+  (let ((a (start-segment seg))
+        (b (end-segment seg)))
+      (make-point (/ 2 (+ (x-point a) (x-point b)))
+                  (/ 2 (+ (y-point a) (y-point b))))))
+
+;; test 
+;;(define a (make-point 1 2))
+;;(define b (make-point 8 9))
+;;(define s (make-segment a b))
+;;(define m (midpoint-segment s))
+;;(print-point m)
+
+;; exe 2.3 
+;; l: left-low-point
+;; r: right-up-point
+(define (make-ractangle l r)
+  (cons l r))
+
+(define (left-low-point rect)
+  (car rect))
+
+(define (right-up-point rect)
+  (cdr rect))
+
+(define (x-distance p1 p2)
+  (abs (- (x-point p1) (x-point p2))))
+
+(define (y-distance p1 p2)
+  (abs (- (y-point p1) (y-point p2))))
+
+(define (horizontal-border-length rect)
+  (let ((ll (left-low-point rect))
+        (ru (right-up-point rect)))
+      (x-distance ll ru)))
+
+(define (vertical-border-length rect)
+  (let ((ll (left-low-point rect))
+        (ru (right-up-point rect)))
+      (y-distance ll ru)))
+
+;; test
+;;(define l (make-point 1 1))
+;;(define r (make-point 5 9))
+
+;;(define rect (make-ractangle l r))
+;;(define a (horizontal-border-length rect))
+;;(define b (vertical-border-length rect))
+
+(define (cons1 x y)
+  (define (dispatch m)
+    (cond ((= m 0) x)
+          ((= m 1) y)
+          (else (error "Argument not 0 or 1: CONS " m))))
+  dispatch)
+
+(define (car1 z) (z 0))
+(define (cdr1 z) (z 1))
+
+;; exe2.4
+(define (cons2 x y)
+  (lambda (m) (m x y)))
+
+(define (car2 z)
+  (z (lambda (p q) p)))
+
+(define (cdr2 z)
+  (z (lambda (p q) q)))
+
+;; test
+;;(define c (cons2 1 2))
+
+;; exe2.5 TODO
+
+;; exe2.6
+
+(define zero (lambda (f) (lambda (x) x)))
+
+(define (add-1 n)
+  (lambda (f) (lambda (x) (f ((n f) x)))))
+
+(define one (lambda (f) (lambda (x) (f x))))
+(define two (lambda (f) (lambda (x) (f (f x)))))
+
+
+(define (add-interval x y)
+  (make-interval (+ (lower-bound x) (lower-bound y))
+                 (+ (upper-bound x) (upper-bound y))))
+
+(define (mul-interval x y)
+  (let ((ll (* (lower-bound x) (lower-bound y)))
+        (lu (* (lower-bound x) (upper-bound y)))
+        (ul (* (upper-bound x) (lower-bound y)))
+        (uu (* (upper-bound x) (upper-bound y))))
+  (make-interval (min ll lu ul uu)
+                 (max ll lu ul uu))))
+
+
+(define (div-interval x y)
+  (mul-interval
+   x
+   (make-interval (/ 1.0 (upper-bound))
+                  (/ 1.0 (lower-bound)))))
+
+
+;; exe2.7
+
+(define (make-interval a b)
+  (cons a b))
+
+(define (lower-bound a)
+  (car a))
+
+(define (upper-bound a)
+  (cdr a))
+
+;; exe2.8
+
+(define (sub-interval a b)
+  (add-interval a
+                (make-interval (- (upper-bound b))
+                               (- (lower-bound b)))))
+
+(define (display-interval a)
+  (newline)
+  (display "[")
+  (display(lower-bound a))
+  (display ", ")
+  (display (upper-bound a))
+  (display "]"))
+
+;; test
+(define a (make-interval -1 5))
+(define b (make-interval -3 3))
+
+;;(display-interval a)
+;;(display-interval b)
+
+;;(define s (sub-interval a b))
+;;(display-interval s)
+
+;; exe2.9
+(define (interval-width a)
+  (/ (- (upper-bound a) (lower-bound a))
+     2.0))
+
+;;(display (interval-width a))
+
+;; skip..... TODO add skipped content in future!!!
+
+(define (list-ref items n)
+  (if (= n 0)
+      (car items)
+      (list-ref (cdr items) (- n 1))))
+
+(define (length items)
+  (if (null? items)
+      0
+      (+ 1 (length (cdr items)))))
+
+(define (lengthi items)
+  (define (length-iter result rest)
+    (if (null? rest)
+        result
+        (length-iter (+ result 1) (cdr rest))))
+  (length-iter 0 items))
+
+(define (append1 list1 list2)
+  (if (null? list1)
+      list2
+      (cons (car list1) (append1 (cdr list1) list2))))
+
+;; exe2.17
+(define (last-pair items)
+  (cond ((null? items) '())
+        ((null? (cdr items)) (car items))
+        (else (last-pair (cdr items)))))
+
+;; exe2.18
+(define (reverse1 items)
+  (if (null? items)
+      '()
+      (cons (reverse1 (cdr items))
+            (car items))))
+
+;; exe2.19  skip TODO
+
+
