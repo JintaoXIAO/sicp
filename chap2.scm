@@ -248,9 +248,85 @@
 (define (reverse1 items)
   (if (null? items)
       '()
-      (cons (reverse1 (cdr items))
-            (car items))))
+      (append (reverse1 (cdr items))
+              (car items))))
 
 ;; exe2.19  skip TODO
 
 
+(define (scale-list items factor)
+  (if (null? items)
+      '()
+      (cons (* (car items) factor)
+            (scale-list (cdr items) factor))))
+
+(define (map1 proc items)
+  (if (null? items)
+      '()
+      (cons (proc (car items))
+            (map1 proc (cdr items)))))
+
+(define (scale-listm items factor)
+  (map (lambda (x) (* x factor))
+       items))
+
+;;exe2.21
+(define (square-list items)
+  (if (null? items)
+      '()
+      (cons (square (car items))
+            (square-list (cdr items)))))
+
+(define (square-listm items)
+  (map square items))
+
+;;exe2.22
+(define (square-listi items)
+  (define (iter things answer)
+    (if (null? things)
+        answer
+        (iter (cdr things)
+              (cons answer
+               (square (car things))))))
+  (iter items '()))
+
+;;exe2.23
+(define (for-each1 proc items)
+  (if (not (null? items))
+      (proc (car items)))
+  (if (not (null? items))
+      (for-each1 proc (cdr items))))
+
+
+(define (count-leaves tree)
+  (cond ((null? tree) 0)
+        ((not (pair? tree)) 1)
+        (else (+ (count-leaves (car tree))
+                 (count-leaves (cdr tree))))))
+
+;;exe2.26
+(define x (list 1 2 3))
+(define y (list 4 5 6))
+
+;;exe2.27
+(define (deep-reverse items)
+  (cond ((null? items) '())
+        ((not (pair? items)) items)
+        (else (append (deep-reverse (cdr items))
+                      (cons (deep-reverse (car items)) '())))))
+
+
+;;test
+(define r (deep-reverse (list 1 2 3 (list 5 6 7))))
+
+;;exe2.28
+(define (fringe tree)
+  (cond ((null? tree) '())
+        ((not (pair? tree)) (list tree))
+        (else (append (list (fringe (car tree)))
+                      (fringe (cdr tree))))))
+
+;;test
+;;(fringe (list (list 1 2) (list 3 (list 4 (list 5 6)))))
+
+(deep-reverse (list 1 2 3  (list 5 6 7)))
