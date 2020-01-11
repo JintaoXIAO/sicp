@@ -317,7 +317,7 @@
 
 
 ;;test
-(define r (deep-reverse (list 1 2 3 (list 5 6 7))))
+;;(define r (deep-reverse (list 1 2 3 (list 5 6 7))))
 
 ;;exe2.28
 (define (fringe tree)
@@ -329,4 +329,95 @@
 ;;test
 ;;(fringe (list (list 1 2) (list 3 (list 4 (list 5 6)))))
 
-(deep-reverse (list 1 2 3  (list 5 6 7)))
+
+;;exe2.29
+(define (make-mobile left right)
+  (list left right))
+
+(define (make-branch length structure)
+  (list length structure))
+
+(define (left-branch mobile)
+  (car mobile))
+
+(define (right-branch mobile)
+  (car (cdr mobile)))
+
+(define (branch-length branch)
+  (car branch))
+
+(define (branch-structure branch)
+  (car (cdr branch)))
+
+(define (total-weight mobile)
+  (if (not (pair? mobile))
+      mobile
+      (let ((lb (left-branch mobile))
+            (rb (right-branch mobile)))
+        (+ (if (pair? lb) (total-weight (branch-structure lb)) lb)
+           (if (pair? rb) (total-weight (branch-structure rb)) rb)))))
+
+
+(define m (make-mobile
+           (make-branch 1 (make-mobile (make-branch 2 3)
+                                       (make-branch 4 5)))
+           (make-branch 6 7)))
+
+(define (balanced mobile)
+  (define (balance-weight structure)
+    (if (pair? structure)
+        (* (branch-length structure) (+ (balance-weight (left-branch (branch-structure structure)))
+                                        (balance-weight (right-branch (branch-structure structure)))))
+        structure))
+  (=? (branch-structure (left-branch mobile))
+      (branch-structure (right-branch mobile))))
+
+
+(define (scale-tree tree factor)
+  (cond ((null? tree) '())
+        ((not (pair?)) (* tree factor))
+        (else (cons (scale-tree (car tree) factor)
+                    (scale-tree (cdr tree) factor)))))
+
+(define (scale-treem tree factor)
+  (map (lambda (sub-tree)
+         (if (not (pair? sub-tree))
+             (* sub-tree factor)
+             (scale-treem sub-tree factor)))
+       tree))
+
+(define (square-tree tree)
+  (map (lambda (sub-tree)
+         (if (not (pair? sub-tree))
+             (square sub-tree)
+             (square-tree sub-tree)))
+       tree))
+
+;;test
+;;(square-tree (list 1 (list 2 (list 3 4) 5)
+;; (list 6 7)))
+
+;;exe2.31
+(define (tree-map op tree)
+  (map (lambda (sub-tree)
+         (if (not (pair? sub-tree))
+             (op sub-tree)
+             (tree-map op sub-tree)))
+       tree))
+
+(define (square-treem tree)
+  (tree-map square tree))
+
+(square-tree (list 1 (list 2 (list 3 4) 5) (list 6 7)))
+
+;;exe2.32
+(define (subsets s)
+  (if (null? s)
+      '()
+      (let ((rest (subsets (cdr s))))
+        (append rest
+                (map (lambda (e) (cons e (car s))) rest)))))
+
+;;test
+;;(subsets '(1 2 3)) not work cause map doesn't work on an empty list
+
