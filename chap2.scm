@@ -421,3 +421,47 @@
 ;;test
 ;;(subsets '(1 2 3)) not work cause map doesn't work on an empty list
 
+(define (filter1 predicate sequence)
+  (cond ((null? sequence) '())
+        ((predicate (car sequence)) (cons (car sequence) (filter predicate (cdr sequence))))
+        (else (filter predicate (cdr sequence)))))
+
+
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+          (accumulate op initial (cdr sequence)))))
+
+;;exe2.33
+(define (mapa p sequence)
+  (accumulate (lambda (x y) (cons (p x) y)) '() sequence))
+
+(define (appenda seq1 seq2)
+  (accumulate cons seq2 seq1))
+
+(define (lengtha sequence)
+  (accumulate (lambda (x y) (+ 1 y)) 0 sequence))
+
+;;exe2.34
+(define (horner-eval x cofficient-sequence)
+  (accumulate (lambda (this-coeff higher-terms) (+ this-coeff (* higher-terms x)))
+              0
+              cofficient-sequence))
+
+;;test
+;;(horner-eval 2 '(1 3 0 5 0 1))
+
+;;exe2.35
+(define (count-leaves t)
+  (accumulate (lambda (x y) (+ x y))
+              0
+              (map (lambda (subtree)
+                     (if (not (pair? subtree))
+                         1
+                         (count-leaves subtree)))
+                   t)))
+
+;;test
+;;(define t (list (list 1 2) (list 4 5)))
+;;count-leaves t)
