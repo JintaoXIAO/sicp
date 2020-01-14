@@ -465,3 +465,76 @@
 ;;test
 ;;(define t (list (list 1 2) (list 4 5)))
 ;;count-leaves t)
+
+;;exe2.36
+(define (accumulate-n op initial seqs)
+  (if (null? (car seqs))
+      '()
+      (cons (accumulate op initial (map car seqs))
+            (accumulate-n op initial (map cdr seqs)))))
+
+;;test
+;;(accumulate-n + 0 (list (list 1 2 43) (list 4 5 6) (list 7 8 9)))
+
+;;exe2.37
+(define (dot-product v w)
+  (accumulate + 0 (map * v w)))
+
+(define (matrix-*-vector m v)
+  (map (lambda (r) (dot-product r v)) m))
+
+;;test
+;;(define m (list (list 1 2 3)
+;;                (list 4 5 6)
+;;                (list 7 8 9)))
+;;(define v (list 3 2 1))
+
+;;(matrix-*-vector m v)
+
+(define (transpose mat)
+  (accumulate-n cons '() mat))
+
+;;test
+;;(transpose (list (list 1 2 3) (list 4 5 6) (list 7 8 9)))
+
+(define (matrix-*-matrix m n)
+  (let ((cols (transpose n)))
+    (map (lambda (col) (matrix-*-vector m col)) cols)))
+
+;;test
+;;(matrix-*-matrix (list (list 1 2) (list 3 4))
+;;                 (list (list 1 2) (list 3 4)))
+
+
+;;exe2.38
+(define (fold-right1 op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+          (fold-right1 op initial (cdr sequence)))))
+
+(define (fold-left1 op initial sequence)
+  (define (iter result rest)
+    (if (null? rest)
+        result
+        (iter (op result (car rest))
+              (cdr rest))))
+  (iter initial sequence))
+
+;;test
+;;(fold-right1 / 1 '(1 2 3))
+;;(fold-left1 / 1 '(1 2 3))
+;;(fold-right1 list '(0) '(1 2 3))
+;;(fold-left1 list '(0) '(1 2 3))
+
+;; op must be commutative
+
+;;exe2.39
+(define (reversefr sequence)
+  (fold-right (lambda (x y) (append y (list x))) '() sequence))
+
+(define (reversefl sequence)
+  (fold-left (lambda (x y) (cons y x)) '() sequence))
+
+;;test
+;;(reversefl '(1 2 3 4 5))
