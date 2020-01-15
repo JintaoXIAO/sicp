@@ -538,3 +538,69 @@
 
 ;;test
 ;;(reversefl '(1 2 3 4 5))
+
+(define (enumerate-interval low high)
+  (if (> low high)
+      '()
+      (cons low (enumerate-interval (+ low 1) high))))
+
+;;(enumerate-interval 1 4)
+
+;;(accumulate append
+;;            '()
+;;            (map (lambda (i)
+;;                   (map (lambda (j) (list i j))
+;;                        (enumerate-interval 1 (- i 1))))
+;;                 (enumerate-interval 1 n)))
+
+(define (flat-map proc seq)
+  (accumulate append '() (map proc seq)))
+
+(define (permutations s)
+  (if (null? s)
+      (list '())
+      (flat-map (lambda (x)
+                  (map (lambda (y) (cons x y))
+                       (permutations (remove x s))))
+                s)))
+
+(define (remove item sequence)
+  (filter
+   (lambda (x) (not (= x item)))
+   sequence))
+;;test
+;;(Permutations '(1 2 3))
+
+
+;;exe2.40
+
+(define (unique-pairs n)
+  (flat-map (lambda (x)
+              (map (lambda (y) (list y x))
+                   (enumerate-interval 1 (- x 1))))
+            (enumerate-interval 1 n)))
+
+;;test
+;;(unique-pairs 4)
+
+;;exe2.41
+(define (unique-triples n)
+  (flat-map (lambda (x)
+              (flat-map (lambda (y) (map (lambda (z) (list z y x))
+                                         (enumerate-interval 1 (- y 1))))
+                        (enumerate-interval 1 (- x 1))))
+            (enumerate-interval 1 n)))
+
+;;(unique-triples 4)
+;;(fold-left + 0 '(1 2 3))
+
+(define (solution241 n s)
+  (filter (lambda (triple) (= (fold-left + 0 triple) s))
+          (unique-triples n)))
+
+;;test
+;;(solution241 6 9)
+
+;;exe2.42 TODO
+
+
