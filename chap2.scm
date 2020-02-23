@@ -601,6 +601,205 @@
 ;;test
 ;;(solution241 6 9)
 
-;;exe2.42 TODO
+;;exe2.42 TODO 8-queens puzzle
 
+
+;; b: cur_queen_no: current queue's NO. cqn
+;; f: cur_queen_availible_loctions cuql
+;; f: safe?
+;; b: target_queen_no: tqn
+;; b: rest-queens ready queens rqs list of lists
+
+;; new-rest-queens  (map (filter (cqal cqn) safe?) (lambda (l) (cons rqs l)))
+
+(define (f queen_nums)
+  (define (helper current_queen_no ready_queen_locations)
+    (if (> current_queen_no queen_nums)
+        ready_queen_locations
+        (helper (+ current_queen_no 1)
+                (flat-map ready_queen_locations (lambda (rqs) (map (filter (cur_queen_availible_loctions cur_queen_no queen_nums)
+                                                                (lambda (location) (safe? location rqs queen_nums))
+                                                              (lambda (location) (cons (rqs location)))))))))))
+
+(define (cur_queen_availible_loctions cur_queen_no queen_nums)
+  (range (* (- cur_queen_no 1) queen_nums)
+         (* cur_queen_no queen_nums)))
+
+(define (safe? location rqs queen_nums)
+  (and (map rqs (lambda (l) (not (conflict? location l queen_nums))))))         
+
+(define (queen-row location queen_nums)
+  (/ location queen_nums))
+
+(define (queen-col location queen_nums)
+  (% location ) queen_nums)
+
+(define (same-row l1 l2 qn)
+  (= (queen-row l1 qn)
+     (queen-row l2 qn)))
+
+(define (same-col l1 l2 qn)
+  (= (queen-col l1 qn)
+     (queen-col l2 qn)))
+
+(define (same-dia l1 l2 qn)
+  (and
+    (= 1 (abs (- (queen-row l1 qn) (queen-row l2 qn))))
+    (= 1 (abs (- (queen-col l1 qn) (queen-row l2 qn))))))
+
+(define (conflict? l1 l2 qn)
+  (or (same-row l1 l2 qn)
+      (same-col l1 l2 qn)
+      (same-dia l1 l2 qn)))
+
+
+;; exe2.43 TODO
+
+;; 2.2.4
+
+;; beside(F1 F2)
+;;        F1 F2
+;; below(F1 F2)
+;;        F2
+;;        F1
+;; flip-vert , flip-horiz
+
+(define wave2 (beside wave (flip-vert wave)))
+(define wave4 (below wave2 wave2))
+
+(define (flipped-pairs parinter)
+  (let ((painter2 (beside painter (flip-vert painter))))
+    (below painter2 painter2)))
+
+(define wave41 (flipped-pairs wave))
+
+(define (right-split painter n)
+  (if (= n 0)
+    painter
+    (let ((smaller (right-split painter (- n 1)))
+      (beside painter (below small small))))))
+
+(define (corner-split painter n)
+  (if (= n 0)
+    painter
+    (let ((up (up-split painter (- n 1)))
+          (right (right-split painter (- n 1))))
+      (let ((top-left (beside up up))
+            (bottom-right (below right right))
+            (corner (corner-split painter (- n 1))))
+        (beside (below painter top-left)
+                (below bottom-right corner))))))
+
+(define (square-limit painter n)
+  (let ((quarter (corner-split painter n)))
+    (let ((half (beside (flip-horiz quarter) quarter)))
+      (below (flip-vert half) half))))
+
+;; exe2.44
+
+(define (up-split painter n)
+  (if (= n 0)
+    painter
+    (let ((smaller (up-split painter (- n 1)))
+      (below painter (beside small small))))))
+
+(define (square-of-four tl tr bl br)
+  (lambda (painter)
+    (let ((top (beside (tl painter) (tr painter)))
+          (bottom (beside (bl painter) (br painter))))
+      (below bottom top))))
+
+(define flipped-pairs
+  (square-of-four identity flip-vert
+                  identity flip-vert))
+
+(define (square-limit painter n)
+  (let ((combine4 (square-of-four flip-horiz identity
+                                  rotate180 flip-vert))))
+    (combine4 (corner-split painter n)))
+
+(define right-split (split beside below))
+(define up-split (split below beside))
+
+(define (split f1 f2)
+  (lambda (painter)
+    (lambda (n)
+      (if (= n 0)
+          painter
+          (let ((small (((split f1 f2) painter (- n 1))))
+            (f1 painter (f2 small small))))))))
+
+;; ...
+
+;; 2.3.1
+
+(define (memq item x)
+  (cond ((null? x) false)
+        ((eq? item (car x)) true)
+        (else (memq item (cdr x)))))
+
+(define (equal? list1 list2)
+  (cond ((and (nil? list1) (nil? list2)) true)
+        ((or (nil? list1) (nil? list2)) false)
+        (else (and (eq? (car list1) (car list2))
+                   (equal2 (cdr list1) (cdr list2))))))
+
+(define variable? symbol?)
+(define (same-variable? v1 v2)
+  (and (variable? v1) (variable? v2) (sq? v1 v2))
+(define (sum? e)
+  (and (pair? x) (eq? (car x) '+)))
+(define (exponentiation? e)
+  (and (pair? e) (eq? (car e) '**)))
+
+(define (make-exponentiation a1 a2)
+  (cond ((=number? a2 0) 1)
+        ((=number? a2 1) a1)
+        ((and (number? a1) (number? a2)) (** a1 a2))))
+(define (base e)
+  (cadr e))
+(define (power e)
+  (cddr e))
+(define ())        
+(define (addend e)
+  (cadr e))
+(define (augend e)
+  (caddr e))
+(define (make-sum a1 a2)
+  (cond ((=number? a1 0) a2)
+        ((=number? a2 0) a1)
+        ((and (number? a1) (number? a2)) (+ a1 a2))
+        (else (list '+ a1 a2))))
+(define (=number? exp num) (and (number? exp) (= exp num)))
+(define (product? e)
+  (and (pair? x) (eq? (car x) '*)))
+(define (multiplier e)
+  (cadr e))
+(define (multiplicand e)
+  (caadr e))
+(define (make-product m1 m2)
+  (cond ((or (=number? m1 0) (=number? m2 0))0)
+        ((=number? m1 1) m2)
+        ((=number? m2 1) m1)
+        ((and (number? m1) (number? m2)) (* m1 m2))
+        (else (list '* m1 m2))))
+
+(define (deriv exp var)
+  (cond ((number? exp) 0)
+        ((variable? exp) (if (same-variable? exp var) 1 0))
+        ((sum? exp) (make-sum (deriv (addend exp) var)
+                              (deriv (augend exp) var)))
+        ((product? exp)
+          (make-sum
+            (make-product (multiplier exp)
+                          (deriv (multiplicand exp) var))
+            (make-product (deriv (multiplicand exp) var)
+                          (multiplicand exp))))
+        ((exponentiation? exp)
+          (make-product 
+            (make-product (power exp)
+                          (make-exponentiation (base exp) (- (power exp) 1)))
+            (deriv (base exp) var)))
+        (else
+          (error "unknow expression type: DERIV" exp)))))
 
